@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application de Relaxation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="intro" class="intro" aria-label="Écran d'accueil de l'application de relaxation">
+        <h1>Relaxation</h1>
+        <p class="intro-description">
+            Cette application vous guide dans des exercices de respiration pour vous aider à vous détendre.
+            Choisissez un thème visuel et un son ambiant pour une expérience personnalisée.
+        </p>
+        <button type="button" class="intro-start-btn" aria-label="Commencer la séance">Commencer</button>
+        <p class="intro-credit">Application créée par cjajlk</p>
+    </div>
+    <div id="main-app" class="container" style="display: none;">
+        <button id="immersion-toggle" class="immersion-toggle" type="button">Mode immersion</button>
+        <h1>Application de Relaxation</h1>
+        <p>Prenez une profonde inspiration et expirez lentement pour vous détendre.</p>
+        <div class="breathing-circle" id="circle">
+            <div class="instruction" id="instruction">Inspirez</div>
+        </div>
+        <button id="voice-toggle" class="voice-button">Activer la Voix Guidée</button>
+        <div class="controls">
+            <label for="sound-select">Son Ambiant:</label>
+            <select id="sound-select">
+                <option value="none">Aucun</option>
+                <option value="rain">Pluie</option>
+                <option value="waves">Vagues</option>
+                <option value="cheminee">Cheminée</option>
+            </select>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5">
+        </div>
+        <div class="controls">
+            <label for="mode-select">Mode de Respiration:</label>
+            <select id="mode-select">
+                <option value="default">Par Défaut (4s Insp/4s Exp)</option>
+                <option value="478">4-7-8 (Sommeil)</option>
+                <option value="slow">Lente Méditation</option>
+            </select>
+        </div>
+        <div class="controls">
+            <label for="theme-select">Thème Visuel:</label>
+            <select id="theme-select">
+                <option value="default">Par Défaut</option>
+                <option value="forest">Forêt</option>
+                <option value="ocean">Océan</option>
+                <option value="rain">Pluie</option>
+                <option value="cheminee">Cheminée</option>
+            </select>
+        </div>
+        <p class="tip">Fermez les yeux et concentrez-vous sur votre respiration.</p>
+        <p class="disclaimer">Avertissement : Cette application n'est pas un substitut à des conseils médicaux professionnels. Si vous avez des problèmes respiratoires, consultez un médecin.</p>
+        <div class="calendar-section">
+            <h2>Conseil de Relaxation du Jour</h2>
+            <p id="date">Date d'aujourd'hui</p>
+            <p id="daily-tip">Chargement du conseil...</p>
+        </div>
+        <div class="progress-section">
+            <h2>Suivi de Progrès</h2>
+            <p id="total-time">Temps Total: 0 min</p>
+            <p id="sessions-count">Sessions: 0</p>
+            <p id="badges">Badges: Aucun</p>
+            <button id="log-session" class="log-button">Enregistrer Session</button>
+            <button id="progress-button" class="progress-button">Voir Progrès Détaillés</button>
+            <button id="exercise-button" class="exercise-button">Exercices Yoga & Méditation</button>
+        </div>
+
+    </div>
+    <script src="script.js"></script>
+    <script>
+        // Bouton pour accéder à la page exercice
+        const exerciseBtn = document.getElementById('exercise-button');
+        if (exerciseBtn) {
+            exerciseBtn.addEventListener('click', () => {
+                window.location.href = 'exercice.html';
+            });
+        }
+
+    </script>
+</body>
+</html>
