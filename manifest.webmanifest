@@ -1,0 +1,12 @@
+{
+  "name": "zenus — Détente & sommeil",
+  "short_name": "zenus",
+  "description": "Votre espace de calme, de détente et de sommeil.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#10172d",
+  "theme_color": "#10172d",
+  "icons": [{"src":"zenus-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+}
