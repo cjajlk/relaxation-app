@@ -52,3 +52,5 @@ Les pistes de son de cette V0.2 sont des **ambiances numériques originales pré
 Le carnet de sommeil est déclaratif : il ne mesure pas médicalement les phases de sommeil. La connexion à une application de santé n'est pas incluse dans cette version.
 
 Voir `LIVRAISON_ZENUS.md` pour les tests et les limites.
+
+Les fichiers historiques `script.js`, `styles.css`, `exercice.js` et `progress.js`, absents du ZIP entrant, ont été récupérés depuis le premier commit Git. La page de progression utilise maintenant un graphique Canvas sans CDN, pour fonctionner hors ligne.
