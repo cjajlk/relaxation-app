@@ -1,45 +1,40 @@
-# zenus — Livraison complète V0.2 premium
+# zenus V0.3 — Refonte de l'interface selon la référence validée
 
-**7 novembre 2026.** Projet d'origine : dossier `relaxation-app` fourni par CJ, y compris historique `.git`.
+Date de travail : 7 novembre 2026. Projet créé à partir du ZIP `relaxation-app.zip` de CJ et de la V0.2 locale. **Conserver le nom `zenus` avec le z minuscule.**
 
-## Améliorations intégrées
+## Refonte réalisée
 
-1. Nom officiel **zenus**, toujours avec un z minuscule.
-2. Décors 2D de votre projet initial rehaussés (8 versions WebP optimisées, jour/nuit) : forêt, plage, pluie à la fenêtre, cheminée. Les 4 PNG originaux ne sont pas supprimés.
-3. Décors plus hauts, scène principale immersive plein écran, sélecteur illustré de paysages, mouvements lents, effets discrets (pluie / lumière / lucioles) et bouton pour désactiver les animations.
-4. Pistes sonores originales en fichiers Ogg Vorbis : 60 secondes par ambiance, 5 canaux indépendants (pluie, vagues, feu, brise, musique), avec bouclage préparé, au lieu de bruits de 4 secondes synthétisés en direct.
-5. Ambiances préréglées : Pluie du soir, Rivage calme, Cocooning, Sous-bois ; volume indépendant par piste et volume général.
-6. Minuterie libre / 5 / 10 / 15 / 30 / 45 / 60 / 90 / 120 min, fondu en fin de séance, pause / reprise / arrêt.
-7. Conservation des modes Détente et Sommeil, respiration guidée 4-7-8 correctement ordonnée, voix facultative.
-8. Carnet manuel du sommeil : courbe sur 7 nuits saisies, export JSON et réimport non destructif des données.
-9. Service worker actualisé pour mettre en cache les fichiers Ogg et WebP, avec prise en charge des requêtes audio « Range » en mode hors ligne.
-10. Préservation de l'ancienne application, des exercices, des statistiques héritées et des données locales.
+- **Accueil de type dashboard premium**, fidèle à l'organisation du visuel choisi : logo et navigation latérale, en-tête, grand paysage nocturne avec chalet, cartes Détente/Sommeil, atmosphères illustrées, mélangeur, choix des univers, résumé du sommeil et respiration guidée.
+- **Lecteur fixe en bas** : lecture, pause, reprise, arrêt, barre de progression, temps, volume général et passage en immersion. Le bouton de reprise conserve une taille adaptée sur mobile.
+- **Paysage principal nocturne** tiré du visuel de référence fourni, recadré sans les éléments d'interface. Les huit autres variantes jour/nuit 2D de V0.2 sont conservées.
+- **Navigation mobile adaptée** : barre de navigation en bas, lecteur placé au-dessus, colonnes réorganisées sans débordement à 320 px.
+- **Dashboard alimenté par les données réelles** : une nouvelle installation indique « Aucune nuit saisie » au lieu d'inventer des mesures. Les graphiques et moyennes apparaissent après saisie d'une nuit.
+- **Favoris** : les ambiances de découverte restent disponibles, les favoris réellement sauvegardés s'ajoutent à l'accueil et au carnet personnel.
+- **Réglages utiles conservés** : minuterie, fondu sonore, cinq volumes indépendants, voix et respiration guidée, animations facultatives, import/export du carnet, accès à l'ancienne application et aux exercices.
+- **Mode hors ligne** : service worker `zenus-static-v3`, avec mise en cache du nouveau visuel. L'installation doit être testée en HTTPS.
 
-## Fichiers conservés
+## Sauvegardes
 
-- Le dossier **`.git/`** complet avec `origin` existant et son historique.
-- `assets/backgrounds/` : images PNG d'origine intactes.
-- `ancienne-version.html`, `exercice.html`, `progress.html`, et les anciennes ressources : aucune suppression.
-- Le dossier `sounds/` comprend les nouvelles pistes originales, directement intégrées au projet.
+Aucune clé locale de V0.2 n'a été modifiée : `zenus.sleep.v1`, `zenus.presets.v1`, `zenus.settings.v2`. Les clés de Relaxation (progression et badges) restent utilisées et n'ont pas été supprimées. Tous les fichiers d'origine `assets/backgrounds`, `ancienne-version.html`, `exercice.html`, `progress.html`, ainsi que leurs scripts historiques sont conservés.
 
-## Tests locaux effectués
+**Attention :** un test sur localhost et la même application sur GitHub Pages n'utilisent pas le même stockage local ; exporter le carnet avant de changer de domaine ou d'appareil.
 
-- Analyse de syntaxe JavaScript (`node --check`) : `zenus.js`, `service-worker.js`.
-- `ffprobe` : les 5 sons Ogg ont une durée de 60 s et sont reconnus par le décodeur.
-- Chromium headless (interface + fichiers audio injectés localement) sur **320, 390, 1280 px** : navigation, scènes, bascule jour/nuit, contrôle des volumes, presets, ambiance sonore, lecture/pause/reprise/arrêt, respiration, immersion, carnet et export JSON, favori : sans erreur JavaScript ni débordement horizontal.
-- Tests effectués en simulation Chromium, **pas sur un véritable appareil Android ni sur GitHub Pages**. Évaluation musicale subjective à réaliser par l'utilisateur.
+## Tests réalisés
 
-## Publication
+- Syntaxe JavaScript : `node --check zenus.js` et `node --check service-worker.js`.
+- Parcours fonctionnel du dashboard avec Playwright/Chromium, à **320, 390, 768, 1280 et 1672 px** : modes, ambiance, réglages, lecture/pause/reprise (contexte audio simulé), favoris, ajout de nuit, graphique, immersion et absence de débordement horizontal. Aucune erreur JavaScript détectée.
+- Les cinq fichiers audio Ogg ont été inspectés avec `ffprobe` : **60 s chacun**.
+- Les fichiers référencés par le service worker ont été contrôlés dans l'archive.
+- **Limite de test :** le navigateur automatisé de cette session bloque l'accès direct au serveur local. Les écrans ont été testés avec le HTML/CSS/JS chargé en mémoire et des pistes audio simulées. La qualité audio et le comportement écran verrouillé **restent à valider sur le téléphone réel**, ainsi que la publication GitHub Pages.
 
-**Aucun commit poussé en ligne depuis ce travail.** La connexion GitHub accessible à l'assistant précédemment consultée refusait les écritures (403). Les fichiers et le commit sont disponibles localement dans le dossier ZIP.
+## Git et publication
 
-Sur Windows : décompressez ce ZIP, ouvrez **le dossier `relaxation-app`** dans VS Code, essayez avec Live Server, puis `git push origin main` depuis le terminal VS Code (ou la fonction Synchroniser les modifications). Vérifiez ensuite l'adresse `https://cjajlk.github.io/relaxation-app/`.
+Le ZIP final contient l'intégralité du dossier `relaxation-app`, dont `.git`, la branche `main`, l'historique et le remote `origin` déjà présent. Un nouveau commit de refonte V0.3 est créé localement, **aucun push n'est effectué**.
 
-Ne forcez pas un push si le dépôt distant a changé. Ne remplacez pas le dossier `.git` d'un autre clone par copie partielle.
+Dans VS Code, ouvrir le dossier décompressé `relaxation-app`, lancer Live Server pour la validation, puis effectuer `git status`, `git log -1 --oneline`, enfin `git push origin main` lorsque tout est validé. Si le distant a changé, ne pas utiliser `--force` : comparer ou intégrer les mises à jour d'abord.
 
-## Limites actuelles
+## Évolutions non incluses
 
-- La lecture de médias écran éteint et l'installation hors ligne nécessitent une validation en conditions réelles sur smartphone.
-- Les sons sont des compositions/ambiances **synthétiques originales**, pas des enregistrements de terrain ; ils demandent une écoute subjective et pourront être remplacés par de futurs enregistrements licenciés.
-- Le suivi reste manuel et local, sans Santé Connect ni synchronisation multi-appareils.
-- Pour bénéficier du hors ligne après installation sur GitHub Pages, une première connexion et un chargement complet des ressources sont nécessaires.
+- Connexion à Santé Connect, synchronisation multi-appareils, réveil automatique.
+- Remplacement des pistes originales de V0.2 par de véritables enregistrements licenciés.
+- Audit Android de la lecture lorsque l'écran est verrouillé.

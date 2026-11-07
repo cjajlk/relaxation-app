@@ -1,11 +1,12 @@
 /* zenus v0.2 : installation hors connexion, ressources audio et images comprises. */
-const CACHE = 'zenus-static-v2';
+const CACHE = 'zenus-static-v3';
 const ASSETS = [
   './', './index.html', './zenus.css', './zenus.js', './zenus-icon.svg',
   './manifest.webmanifest', './exercice.html', './exercice.js',
   './progress.html', './progress.js', './styles.css', './script.js', './ancienne-version.html',
   './assets/backgrounds/foret.png', './assets/backgrounds/ocean.pg.png',
   './assets/backgrounds/pluie.png', './assets/backgrounds/chemin%C3%A9e.png',
+  './assets/scenes/hero-zenus.webp',
   './assets/scenes/forest.webp', './assets/scenes/ocean.webp', './assets/scenes/rain.webp', './assets/scenes/fire.webp',
   './assets/scenes/forest-nuit.webp', './assets/scenes/ocean-nuit.webp', './assets/scenes/rain-nuit.webp', './assets/scenes/fire-nuit.webp',
   './sounds/pluie-douce.ogg', './sounds/vagues-calmes.ogg', './sounds/feu-doux.ogg',

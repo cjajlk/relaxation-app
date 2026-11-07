@@ -41,6 +41,7 @@
     });
     if (name === 'sleep') renderSleep();
     if (name === 'favorites') renderPresets();
+    if (name === 'session') refreshDashboard();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function setMode(mode) {
@@ -53,6 +54,7 @@
     $('mode-sleep').setAttribute('aria-pressed', String(mode === 'sleep'));
     $('scene-badge').textContent = mode === 'sleep' ? 'Sommeil' : 'Détente';
     $('scene').classList.toggle('sleep-scene', mode === 'sleep');
+    refreshPlayerInfo();
     if (state.status === 'idle') {
       $('duration').value = mode === 'sleep' ? '45' : '30';
       $('fade').checked = true;
@@ -67,11 +69,49 @@
     $('scene').setAttribute('aria-label', sceneTexts[scene][2]);
     $('scene-title').textContent = sceneTexts[scene][0];
     $('scene-caption').textContent = sceneTexts[scene][1];
+    refreshPlayerInfo();
     $$('.scene-btn').forEach(btn => {
       const active = btn.dataset.scene === scene;
       btn.classList.toggle('active', active);
       btn.setAttribute('aria-pressed', String(active));
     });
+  }
+  const scenery = {
+    forest: 'assets/scenes/forest.webp', ocean: 'assets/scenes/ocean.webp',
+    rain: 'assets/scenes/rain.webp', fire: 'assets/scenes/fire.webp'
+  };
+  function refreshPlayerInfo() {
+    if (!$('playing-title')) return;
+    $('playing-title').textContent = sceneTexts[state.scene][0];
+    $('playing-detail').textContent = (state.mode === 'sleep' ? 'Sommeil' : 'Détente') + ' · votre ambiance sonore';
+    $('playing-art').className = 'playing-art art-' + state.scene;
+  }
+  function renderDashboardSleep() {
+    const nights = readSleep().slice().sort((a, b) => b.date.localeCompare(a.date));
+    const last = nights[0];
+    $('sleep-dash-latest').textContent = last ? displayMinutes(last.minutesInBed) : '—';
+    const descriptions = ['','Très difficile','Difficile','Correcte','Bonne','Très bonne'];
+    $('sleep-dash-quality').textContent = last ? descriptions[last.quality] + ' · temps au lit' : 'Aucune nuit saisie';
+    const week = nights.slice(0,7);
+    $('sleep-dash-average').textContent = week.length ? displayMinutes(Math.round(week.reduce((sum,n) => sum+n.minutesInBed,0)/week.length)) : '—';
+    $('sleep-dash-score').textContent = week.length ? (week.reduce((sum,n) => sum+n.quality,0)/week.length).toFixed(1)+'/5' : '—';
+    const chart = $('sleep-mini');
+    chart.replaceChildren();
+    if (!week.length) {
+      const p=document.createElement('p');p.className='empty-mini';p.textContent='Ajoutez votre première nuit pour voir l’évolution.';chart.append(p);
+      return;
+    }
+    week.slice().reverse().forEach(night=>{
+      const box=document.createElement('div');box.className='mini-bar';
+      const bar=document.createElement('b');
+      bar.style.height=Math.max(6,Math.min(45,Math.round(night.minutesInBed/660*45)))+'px';
+      bar.title=safeDateLabel(night.date)+' : '+displayMinutes(night.minutesInBed)+' au lit';
+      const label=document.createElement('small');label.textContent=night.date.slice(8);
+      box.append(bar,label);chart.append(box);
+    });
+  }
+  function refreshDashboard() {
+    renderDashboardSleep();
   }
   function getVolumes() {
     const values = {};
@@ -195,7 +235,8 @@
       }, 450);
     }
     $('start').disabled = false;
-    $('start').textContent = '▶ Reprendre';
+    $('start').textContent = '▶';
+    $('start').setAttribute('aria-label', 'Reprendre l’ambiance');
     $('pause').disabled = true;
     setStatus('Séance en pause');
     updateClock();
@@ -241,7 +282,8 @@
       }, 550);
     }
     $('start').disabled = false;
-    $('start').textContent = '▶ Commencer';
+    $('start').textContent = '▶';
+    $('start').setAttribute('aria-label', 'Commencer une ambiance');
     $('pause').disabled = true;
     $('stop').disabled = true;
     $('duration').disabled = false;
@@ -252,6 +294,8 @@
   function updateClock() {
     const total = duration();
     $('clock').textContent = total ? timeLabel(Math.max(0, total - elapsed())) : timeLabel(elapsed());
+    $('elapsed-label').textContent = timeLabel(elapsed());
+    $('player-progress').value = total ? Math.min(100, (elapsed()/total)*100) : 0;
   }
   function tick() {
     if (state.status === 'playing') {
@@ -288,7 +332,8 @@
     state.breathingOn = !state.breathingOn;
     $('breathing-panel').hidden = !state.breathingOn;
     $('breathing-toggle').setAttribute('aria-expanded', String(state.breathingOn));
-    $('breathing-toggle').textContent = state.breathingOn ? '− Masquer la respiration' : '＋ Respiration guidée';
+    $('breathing-toggle').textContent = state.breathingOn ? '×' : '▶';
+    $('breathing-toggle').setAttribute('aria-label',state.breathingOn ? 'Masquer la respiration' : 'Afficher la respiration guidée');
     state.breathStart = Date.now(); state.priorPhase = '';
     if (!state.breathingOn && 'speechSynthesis' in window) window.speechSynthesis.cancel();
     breathing();
@@ -329,6 +374,7 @@
     } else $('sleep-message').textContent = 'Sauvegarde impossible : stockage du navigateur indisponible.';
   }
   function renderSleep() {
+    renderDashboardSleep();
     const nights = readSleep().sort((a, b) => b.date.localeCompare(a.date));
     const summary = $('sleep-summary'), history = $('sleep-history');
     summary.replaceChildren(); history.replaceChildren();
@@ -382,6 +428,16 @@
   }
   function renderPresets() {
     const presets = readPresets(), holder = $('presets'); holder.replaceChildren();
+    $('favorites-short-title').querySelector('span').textContent = presets.length ? 'Mes ambiances favorites' : 'Ambiances à découvrir';
+    const quick=$('saved-favorite-quick');quick.replaceChildren();quick.hidden=!presets.length;
+    presets.slice(0,3).forEach(preset=>{
+      const button=document.createElement('button');button.type='button';button.textContent='♡ '+preset.name;
+      button.addEventListener('click',()=>{
+        if(state.status!=='idle'){alert('Terminez la séance avant de changer de favori.');return;}
+        setMode(preset.mode);setScene(preset.scene);setVolumes(preset.volumes||{});
+        $('duration').value=String(preset.duration||0);$('fade').checked=Boolean(preset.fade);updateClock();showPage('session');
+      });quick.append(button);
+    });
     if (!presets.length) { const p = document.createElement('p'); p.className = 'hint'; p.textContent = 'Aucun favori enregistré. Composez une ambiance dans Ambiances, puis revenez ici.'; holder.append(p); return; }
     presets.forEach(preset => {
       const row = document.createElement('div'); row.className = 'preset-item';
@@ -471,6 +527,40 @@
   });
 
   $$('.nav-btn').forEach(button => button.addEventListener('click', () => showPage(button.dataset.page)));
+  $$('[data-mode-link]').forEach(button=>button.addEventListener('click',()=>{
+    showPage('session');setMode(button.dataset.modeLink);
+    document.querySelector('.modes').scrollIntoView({behavior:'smooth',block:'center'});
+  }));
+  $$('[data-go-mixer]').forEach(button=>button.addEventListener('click',()=>{
+    showPage('session');$('mixer-section').scrollIntoView({behavior:'smooth',block:'center'});
+  }));
+  $$('[data-go-breath]').forEach(button=>button.addEventListener('click',()=>{
+    showPage('session');if(!state.breathingOn)toggleBreathing();
+    $('breathing-panel').scrollIntoView({behavior:'smooth',block:'center'});
+  }));
+  ['sleep-detail','go-sleep-stats'].forEach(id=>$(id).addEventListener('click',()=>showPage('sleep')));
+  $('view-favorites').addEventListener('click',()=>showPage('favorites'));
+  $('go-extras').addEventListener('click',()=>showPage('more'));
+  $('save-current').addEventListener('click',()=>{
+    if(!$('preset-name').value.trim()) $('preset-name').value = sceneTexts[state.scene][0];
+    showPage('favorites');$('preset-name').focus();
+  });
+  $('reset-mix').addEventListener('click',()=>{
+    setVolumes({rain:45,waves:0,fire:0,wind:20,music:20});
+    $$('.quick-preset').forEach(b=>b.classList.remove('selected'));
+  });
+  $('scene-big').addEventListener('click',()=>$('immersion').click());
+  $('player-immerse').addEventListener('click',()=>{
+    if($('page-session').hidden)showPage('session');$('immersion').click();
+  });
+  const updateConnection = () => {
+    $('network-state').textContent = navigator.onLine ? '● Connexion active' : '● Sans connexion';
+  };
+  window.addEventListener('online',updateConnection);
+  window.addEventListener('offline',updateConnection);
+  updateConnection();
+  $('today-label').textContent = new Date().toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+
   $('mode-relax').addEventListener('click', () => setMode('relax'));
   $('mode-sleep').addEventListener('click', () => setMode('sleep'));
   $$('.scene-btn').forEach(button => button.addEventListener('click', () => setScene(button.dataset.scene)));
@@ -500,6 +590,7 @@
   }));
   setInterval(breathing, 200);
   soundTypes.forEach(updateVolume);
+  refreshPlayerInfo();
   renderSleep(); renderPresets(); updateClock();
   // La boucle audio est créée uniquement après une action explicite de l'utilisateur.
   if ('serviceWorker' in navigator && location.protocol === 'https:') {

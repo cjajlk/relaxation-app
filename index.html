@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#10172d">
-  <meta name="description" content="zenus : détente, sommeil, paysages apaisants, sons personnalisables et carnet de sommeil privé.">
+  <meta name="theme-color" content="#08142d">
+  <meta name="description" content="zenus : détente, sommeil, paysages 2D, ambiances sonores personnalisées et carnet de sommeil privé.">
   <title>zenus · détente & sommeil</title>
   <link rel="icon" type="image/svg+xml" href="zenus-icon.svg">
   <link rel="manifest" href="manifest.webmanifest">
@@ -12,99 +12,157 @@
   <script defer src="zenus.js"></script>
 </head>
 <body>
-  <div class="shell">
-    <header class="topbar">
-      <a class="brand" href="./" aria-label="zenus, accueil"><span class="brand-icon" aria-hidden="true">☾</span><span>zenus</span></a>
-      <span class="motto">Un instant juste pour vous</span>
-    </header>
-    <nav class="nav" aria-label="Navigation principale">
-      <button class="nav-btn active" type="button" data-page="session" aria-current="page">✦ <span>Ambiances</span></button>
-      <button class="nav-btn" type="button" data-page="sleep">☾ <span>Mon sommeil</span></button>
-      <button class="nav-btn" type="button" data-page="favorites">♫ <span>Favoris</span></button>
-      <button class="nav-btn" type="button" data-page="more">⋯ <span>Découvrir</span></button>
-    </nav>
-    <main>
-      <section class="page" id="page-session" aria-labelledby="main-title">
-        <div class="heading"><span class="eyebrow">Bienvenue dans votre bulle de calme</span><h1 id="main-title">Un moment pour vous</h1><p>Deux façons de retrouver votre tranquillité, à votre rythme.</p></div>
-        <div class="modes" role="group" aria-label="Choisissez un mode">
-          <button class="mode-card active" type="button" id="mode-relax" aria-pressed="true"><span aria-hidden="true" class="mode-icon">✿</span><strong>Détente</strong><small>Respirer, souffler, se ressourcer</small></button>
-          <button class="mode-card" type="button" id="mode-sleep" aria-pressed="false"><span aria-hidden="true" class="mode-icon">☾</span><strong>Sommeil</strong><small>Ralentir doucement jusqu'à la nuit</small></button>
-        </div>
-        <div class="main-grid">
-          <section class="visual-col" aria-label="Décor relaxant">
-            <div class="scene scene-forest" id="scene" role="img" aria-label="Paysage de forêt">
-              <div class="scene-overlay"></div><div class="scene-orb" aria-hidden="true"></div><div class="scene-particles" aria-hidden="true"></div><div class="scene-rainfall" aria-hidden="true"></div>
-              <button id="immersion" class="scene-immerse" type="button" aria-pressed="false" title="Afficher l'ambiance en grand">⛶ <span>Immersion</span></button>
-              <div class="scene-text"><span id="scene-badge" class="scene-badge">Détente</span><h2 id="scene-title">La forêt murmure</h2><p id="scene-caption">Laissez la journée s'éloigner.</p></div>
+  <div class="app-layout">
+    <aside class="sidebar" aria-label="Menu principal">
+      <a class="sidebar-brand" href="./" aria-label="zenus, accueil">
+        <span class="logo-symbol" aria-hidden="true">☾<span>✦</span></span>
+        <span class="logo-word">zenus</span>
+        <small>Détente · Sommeil · Bien-être</small>
+      </a>
+      <nav class="side-nav" aria-label="Navigation principale">
+        <button class="nav-btn active" type="button" data-page="session" data-nav-home aria-current="page"><span class="nav-ico">⌂</span><span>Accueil</span></button>
+        <button class="mode-nav-btn" type="button" data-mode-link="relax"><span class="nav-ico">❧</span><span>Détente</span></button>
+        <button class="mode-nav-btn" type="button" data-mode-link="sleep"><span class="nav-ico">☾</span><span>Sommeil</span></button>
+        <button class="nav-btn" type="button" data-page="sleep"><span class="nav-ico">▥</span><span>Mon sommeil</span></button>
+        <button class="mode-nav-btn" type="button" data-go-mixer><span class="nav-ico">☷</span><span>Ambiances</span></button>
+        <button class="mode-nav-btn" type="button" data-go-breath><span class="nav-ico">✿</span><span>Respiration</span></button>
+        <a class="side-link" href="exercice.html"><span class="nav-ico">❀</span><span>Exercices</span></a>
+        <button class="nav-btn" type="button" data-page="favorites"><span class="nav-ico">♡</span><span>Favoris</span></button>
+        <button class="nav-btn" type="button" data-page="more"><span class="nav-ico">⚙</span><span>Réglages</span></button>
+      </nav>
+      <div class="sidebar-landscape" aria-hidden="true"></div>
+      <div class="sidebar-foot">Un moment de calme, rien qu'à vous.</div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div class="top-welcome"><span class="welcome-icon" aria-hidden="true">✧</span><div><strong>Bienvenue dans zenus</strong><small>Un instant de calme, juste pour vous.</small></div></div>
+        <div class="top-meta"><span id="today-label" class="date-chip"></span><span id="network-state" class="connection-chip" aria-live="polite">● Disponible</span></div>
+      </header>
+      <main>
+        <section class="page" id="page-session" aria-labelledby="main-title">
+          <div class="dashboard-layout">
+            <div class="main-stack">
+              <section class="hero" aria-label="Votre univers de détente">
+                <div id="scene" class="scene scene-forest" role="img" aria-label="Paysage de forêt nocturne">
+                  <div class="scene-overlay"></div><div class="scene-orb" aria-hidden="true"></div><div class="scene-particles" aria-hidden="true"></div><div class="scene-rainfall" aria-hidden="true"></div>
+                  <div class="scene-text">
+                    <span class="eyebrow soft" id="scene-badge">Votre refuge de détente</span>
+                    <h1 id="main-title">zenus</h1><p class="hero-subtitle">Votre espace de calme et de sommeil</p>
+                    <p id="scene-caption">Respirez, relâchez les tensions et profitez de l'instant.</p>
+                    <small class="scene-location" id="scene-title">La forêt murmure</small>
+                  </div>
+                  <button id="immersion" class="scene-immerse" type="button" aria-pressed="false" title="Voir le paysage en plein écran">⛶ <span>Immersion</span></button>
+                </div>
+              </section>
+
+              <div class="modes" role="group" aria-label="Choix du mode">
+                <button type="button" class="mode-card active" id="mode-relax" aria-pressed="true"><span class="mode-icon">❀</span><strong>Détente</strong><small>Se relaxer, évacuer les tensions et se ressourcer.</small><span class="circle-arrow" aria-hidden="true">▶</span></button>
+                <button type="button" class="mode-card" id="mode-sleep" aria-pressed="false"><span class="mode-icon">☾</span><strong>Sommeil</strong><small>Préparer le corps et l'esprit à une nuit paisible.</small><span class="circle-arrow" aria-hidden="true">▶</span></button>
+              </div>
+
+              <section class="favorites-section" aria-labelledby="favorites-short-title">
+                <div class="section-bar"><h2 id="favorites-short-title">♡ <span>Mes ambiances favorites</span></h2><button id="view-favorites" type="button" class="text-link">Voir tout <span aria-hidden="true">›</span></button></div>
+                <div class="favorite-grid" id="featured-presets" aria-label="Sélection d'ambiances">
+                  <button class="quick-preset favorite-tile tile-rain" type="button" data-quick="rain"><span class="favorite-heart">♡</span><span class="favorite-name">Pluie au chalet</span><span class="favorite-play">▶</span></button>
+                  <button class="quick-preset favorite-tile tile-forest" type="button" data-quick="forest"><span class="favorite-heart">♡</span><span class="favorite-name">Forêt calme</span><span class="favorite-play">▶</span></button>
+                  <button class="quick-preset favorite-tile tile-ocean" type="button" data-quick="ocean"><span class="favorite-heart">♡</span><span class="favorite-name">Océan apaisant</span><span class="favorite-play">▶</span></button>
+                  <button class="quick-preset favorite-tile tile-fire" type="button" data-quick="fire"><span class="favorite-heart">♡</span><span class="favorite-name">Feu de cheminée</span><span class="favorite-play">▶</span></button>
+                </div>
+                <div id="saved-favorite-quick" class="saved-quick" hidden></div>
+              </section>
+
+              <div class="lower-grid">
+                <section class="panel mixer-panel" id="mixer-section" aria-labelledby="mixer-title">
+                  <div class="section-bar"><h2 id="mixer-title">☷ <span>Mélangeur d'ambiance</span></h2><button id="reset-mix" class="mini-link" type="button">Réinitialiser</button></div>
+                  <div class="mixer">
+                    <label class="mixer-row"><span>☂ <span>Pluie</span></span><input type="range" min="0" max="100" step="5" data-sound="rain" value="45" aria-label="Volume de la pluie"><output data-output="rain">45 %</output></label>
+                    <label class="mixer-row"><span>≋ <span>Vagues</span></span><input type="range" min="0" max="100" step="5" data-sound="waves" value="0" aria-label="Volume des vagues"><output data-output="waves">0 %</output></label>
+                    <label class="mixer-row"><span>♨ <span>Cheminée</span></span><input type="range" min="0" max="100" step="5" data-sound="fire" value="0" aria-label="Volume de la cheminée"><output data-output="fire">0 %</output></label>
+                    <label class="mixer-row"><span>≋ <span>Brise légère</span></span><input type="range" min="0" max="100" step="5" data-sound="wind" value="20" aria-label="Volume de la brise"><output data-output="wind">20 %</output></label>
+                    <label class="mixer-row"><span>♫ <span>Musique douce</span></span><input type="range" min="0" max="100" step="5" data-sound="music" value="20" aria-label="Volume de la musique"><output data-output="music">20 %</output></label>
+                  </div>
+                  <div class="mixer-options"><label class="field-label" for="duration">Durée<select id="duration" class="field"><option value="0">Sans limite</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">60 min</option><option value="90">90 min</option><option value="120">2 heures</option></select></label><label class="checkline"><input type="checkbox" id="fade" checked><span>Fondu sonore</span></label></div>
+                  <button type="button" id="save-current" class="btn soft-btn">♡ Enregistrer en favori</button>
+                </section>
+                <section class="panel universes-panel" aria-labelledby="universe-title">
+                  <div class="section-bar"><h2 id="universe-title">♧ <span>Univers disponibles</span></h2><small>4 paysages 2D</small></div>
+                  <div class="scene-options" role="group" aria-label="Choix d'un paysage">
+                    <button class="scene-btn active" data-scene="forest" type="button" aria-pressed="true"><span>Forêt</span></button>
+                    <button class="scene-btn" data-scene="ocean" type="button" aria-pressed="false"><span>Océan</span></button>
+                    <button class="scene-btn" data-scene="rain" type="button" aria-pressed="false"><span>Pluie</span></button>
+                    <button class="scene-btn" data-scene="fire" type="button" aria-pressed="false"><span>Chalet</span></button>
+                  </div>
+                  <p class="tiny">Chaque univers existe en version jour et nuit. Les mouvements restent très doux.</p>
+                  <button class="text-link scene-enlarge" id="scene-big" type="button">⛶ Voir le paysage en grand</button>
+                </section>
+              </div>
             </div>
-            <div class="scene-options" role="group" aria-label="Choix du paysage">
-              <button type="button" class="scene-btn active" data-scene="forest" aria-pressed="true">Forêt</button>
-              <button type="button" class="scene-btn" data-scene="ocean" aria-pressed="false">Océan</button>
-              <button type="button" class="scene-btn" data-scene="rain" aria-pressed="false">Pluie</button>
-              <button type="button" class="scene-btn" data-scene="fire" aria-pressed="false">Cheminée</button>
-            </div>
-            <p class="tiny">Des paysages 2D sublimés, avec des mouvements très doux. <button type="button" id="motion-toggle" class="inline-link" aria-pressed="false">Désactiver les animations</button></p>
-          </section>
-          <section class="panel player" aria-label="Réglages de la séance">
-            <span class="eyebrow">Personnalisez votre instant</span><h2>Votre ambiance sonore</h2><p class="hint">Choisissez une atmosphère prête à écouter, ou créez votre propre mélange.</p>
-            <div class="quick-presets" role="group" aria-label="Ambiances proposées">
-              <button type="button" class="quick-preset" data-quick="rain">☂ Pluie du soir</button>
-              <button type="button" class="quick-preset" data-quick="ocean">≈ Rivage calme</button>
-              <button type="button" class="quick-preset" data-quick="fire">♨ Cocooning</button>
-              <button type="button" class="quick-preset" data-quick="forest">✿ Sous-bois</button>
-            </div>
-            <div class="mixer">
-              <label class="mixer-row"><span>☂ Pluie</span><input type="range" min="0" max="100" step="5" data-sound="rain" value="45" aria-label="Volume de la pluie"><output data-output="rain">45 %</output></label>
-              <label class="mixer-row"><span>≈ Vagues</span><input type="range" min="0" max="100" step="5" data-sound="waves" value="0" aria-label="Volume des vagues"><output data-output="waves">0 %</output></label>
-              <label class="mixer-row"><span>♨ Cheminée</span><input type="range" min="0" max="100" step="5" data-sound="fire" value="0" aria-label="Volume de la cheminée"><output data-output="fire">0 %</output></label>
-              <label class="mixer-row"><span>♧ Brise légère</span><input type="range" min="0" max="100" step="5" data-sound="wind" value="20" aria-label="Volume de la brise"><output data-output="wind">20 %</output></label>
-              <label class="mixer-row"><span>♫ Musique douce</span><input type="range" min="0" max="100" step="5" data-sound="music" value="20" aria-label="Volume de la musique"><output data-output="music">20 %</output></label>
-            </div>
-            <p class="tiny">Nouvelles ambiances audio originales, préparées en boucles longues et intégrées pour l'écoute hors ligne.</p>
-            <div class="volume-master"><label for="master-volume">Volume général</label><input type="range" id="master-volume" min="0" max="100" value="65" step="5" aria-label="Volume général"><output id="master-output">65 %</output></div>
-            <label class="field-label" for="duration">Minuterie</label><select id="duration" class="field"><option value="0">Sans limite</option><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option><option value="120">2 heures</option></select>
-            <label class="checkline"><input type="checkbox" id="fade" checked> <span>Fondu sonore en fin de séance</span></label>
-            <div class="status" role="status"><span class="status-indicator" id="status-indicator"></span><span id="status-label">Prêt à commencer</span><strong id="clock">30:00</strong></div>
-            <div class="actions"><button type="button" id="start" class="btn primary">▶ Commencer</button><button type="button" id="pause" class="btn secondary" disabled>Pause</button><button type="button" id="stop" class="btn ghost" disabled>Terminer</button></div>
-            <button type="button" id="breathing-toggle" class="text-btn" aria-controls="breathing-panel" aria-expanded="false">＋ Respiration guidée</button>
-            <div id="breathing-panel" class="breathing-panel" hidden>
-              <label class="field-label" for="breathing-mode">Rythme</label><select id="breathing-mode" class="field"><option value="normal">Doux · 4 s / 4 s</option><option value="slow">Lent · 6 s / 6 s</option><option value="478">4-7-8 · inspiration, pause, expiration</option></select>
-              <div class="breathing-orb" id="breathing-orb"><span id="breathing-text">Inspirez</span></div>
-              <label class="checkline"><input type="checkbox" id="voice"> <span>Voix guidée si disponible</span></label>
-              <p class="tiny">Respirez sans forcer. Vous pouvez ignorer toute pause respiratoire inconfortable.</p>
-            </div>
-          </section>
-        </div>
-      </section>
-      <section class="page" id="page-sleep" aria-labelledby="sleep-title" hidden>
-        <div class="heading"><span class="eyebrow">Un carnet simple et privé</span><h1 id="sleep-title">Mon sommeil</h1><p>Notez vos nuits si vous en avez envie, sans objectif imposé.</p></div>
-        <div class="journal-grid">
-          <form id="sleep-form" class="panel" autocomplete="off">
-            <h2>Ajouter une nuit</h2><div class="form-grid">
-              <label class="field-label">Date du réveil<input type="date" class="field" id="sleep-date" required></label>
-              <label class="field-label">Qualité ressentie<select class="field" id="sleep-quality"><option value="5">Très bonne</option><option value="4" selected>Bonne</option><option value="3">Correcte</option><option value="2">Difficile</option><option value="1">Très difficile</option></select></label>
-              <label class="field-label">Heure du coucher<input type="time" class="field" id="sleep-bed" value="22:30" required></label>
-              <label class="field-label">Heure du réveil<input type="time" class="field" id="sleep-wake" value="07:00" required></label>
-              <label class="field-label">Temps pour s'endormir<select class="field" id="sleep-latency"><option value="0">Très rapide</option><option value="10">Environ 10 min</option><option value="20" selected>Environ 20 min</option><option value="30">Environ 30 min</option><option value="45">Environ 45 min</option><option value="60">Une heure ou plus</option></select></label>
-              <label class="field-label">Réveils nocturnes<select class="field" id="sleep-wakings"><option value="0">Aucun</option><option value="1">1 fois</option><option value="2">2 fois</option><option value="3">3 fois ou plus</option></select></label>
-            </div>
-            <label class="field-label">Une note, si vous le souhaitez<textarea id="sleep-note" class="field" rows="2" maxlength="200" placeholder="Comment vous sentez-vous ce matin ?"></textarea></label>
-            <button class="btn primary" type="submit">Enregistrer la nuit</button><p id="sleep-message" class="tiny" role="status">Une date existante sera mise à jour.</p>
-          </form>
-          <section class="panel" aria-labelledby="history-title"><h2 id="history-title">Mes dernières nuits</h2><div id="sleep-summary" class="sleep-summary"></div><div id="sleep-trend" class="sleep-trend" aria-label="Vos sept dernières nuits enregistrées"></div><div id="sleep-history" class="sleep-history"></div><div class="backup-actions"><button id="export-sleep" type="button" class="mini-btn">↓ Exporter mon carnet</button><label class="mini-btn import-label">↑ Importer un carnet<input type="file" id="import-sleep" accept=".json,application/json" hidden></label></div><p class="tiny" id="backup-message" role="status">Durées estimées, déclarées manuellement. Aucune mesure médicale. Données stockées dans ce navigateur.</p></section>
-        </div>
-      </section>
-      <section class="page" id="page-favorites" aria-labelledby="fav-title" hidden>
-        <div class="heading"><span class="eyebrow">Retrouvez vos atmosphères</span><h1 id="fav-title">Mes ambiances</h1><p>Enregistrez votre paysage et votre mélange sonore.</p></div>
-        <section class="panel narrow"><label class="field-label" for="preset-name">Nom de cette ambiance</label><div class="preset-compose"><input id="preset-name" class="field" maxlength="35" placeholder="Ex. Ma pluie du soir"><button type="button" id="save-preset" class="btn primary">Enregistrer</button></div><p id="preset-message" class="tiny" role="status"></p><div id="presets" class="presets"></div></section>
-      </section>
-      <section class="page" id="page-more" aria-labelledby="more-title" hidden>
-        <div class="heading"><span class="eyebrow">Prendre soin de soi, simplement</span><h1 id="more-title">Découvrir</h1></div>
-        <div class="links-grid"><a class="feature-link" href="exercice.html"><span>✿</span><strong>Yoga & méditation</strong><small>Les exercices de votre application d'origine</small></a><a class="feature-link" href="progress.html"><span>◷</span><strong>Mes anciennes séances</strong><small>Statistiques, progression et badges conservés</small></a><a class="feature-link" href="ancienne-version.html"><span>↺</span><strong>Ancienne version</strong><small>Retrouver l'application Relaxation d'origine</small></a></div>
-        <section class="panel narrow"><h2>À propos de zenus</h2><p>zenus accompagne la détente et la préparation au sommeil. Il ne remplace pas un avis médical. Toutes les fonctions de suivi sont facultatives.</p><p>Vos nuits et vos favoris restent enregistrés uniquement dans ce navigateur. Si vous changez d'appareil ou effacez les données du navigateur, ils ne seront pas synchronisés.</p><p>Les sons sont des créations numériques originales intégrées à cette application. Ils ne prétendent pas être des enregistrements de terrain.</p><p>Sur certains téléphones, la lecture sonore peut s'interrompre lorsque l'écran s'éteint : le fonctionnement doit être vérifié sur l'appareil réel.</p></section>
-      </section>
-    </main>
-    <footer class="footer"><span>zenus · créé par cjajlk</span><span>Le calme, à votre rythme.</span></footer>
+
+            <aside class="right-stack" aria-label="Bien-être et sommeil">
+              <section class="panel dashboard-widget sleep-widget" aria-labelledby="dash-sleep-title">
+                <div class="section-bar"><h2 id="dash-sleep-title">▤ <span>Mon sommeil</span></h2><button id="sleep-detail" class="widget-arrow" type="button" aria-label="Ouvrir mon carnet de sommeil">›</button></div>
+                <div class="sleep-quick-stats"><div><small>Dernière nuit renseignée</small><strong id="sleep-dash-latest">—</strong><span id="sleep-dash-quality">Aucune nuit saisie</span></div><span class="sleep-moon" aria-hidden="true">☾</span></div>
+                <div class="sleep-mini-summary"><div><small>Moyenne (7 nuits)</small><strong id="sleep-dash-average">—</strong></div><div><small>Qualité ressentie</small><strong id="sleep-dash-score">—</strong></div></div>
+                <div class="sleep-mini-chart" id="sleep-mini" aria-label="Résumé de vos dernières nuits"></div>
+                <button class="panel-link" type="button" id="go-sleep-stats">▦ &nbsp; Historique et statistiques <span aria-hidden="true">›</span></button>
+              </section>
+              <section class="panel dashboard-widget breath-widget" aria-labelledby="breath-title">
+                <div class="section-bar"><h2 id="breath-title">❀ <span>Respiration guidée</span></h2></div>
+                <div class="breath-preview"><div class="breath-flower" aria-hidden="true">✿</div><div><strong>Respirez à votre rythme</strong><small>Un instant pour vous recentrer</small></div><button id="breathing-toggle" type="button" class="round-action" aria-expanded="false" aria-controls="breathing-panel" title="Afficher la respiration">▶</button></div>
+                <div id="breathing-panel" class="breathing-panel" hidden>
+                  <label class="field-label" for="breathing-mode">Rythme de respiration<select id="breathing-mode" class="field"><option value="normal">Doux · 4 s / 4 s</option><option value="slow">Lent · 6 s / 6 s</option><option value="478">4-7-8 · inspiration, pause, expiration</option></select></label>
+                  <div class="breathing-orb" id="breathing-orb"><span id="breathing-text">Inspirez</span></div>
+                  <label class="checkline"><input type="checkbox" id="voice"><span>Voix guidée si disponible</span></label><p class="tiny">Respirez sans forcer. Ignorez les pauses inconfortables.</p>
+                </div>
+              </section>
+              <section class="panel dashboard-widget advice-widget"><div class="section-bar"><h2>☀ <span>Conseil douceur</span></h2></div><div class="advice-card"><p>Avant le coucher, accordez-vous quelques minutes de calme et baissez doucement la lumière.</p><small>Le sommeil n'est pas une performance.</small></div></section>
+              <section class="panel dashboard-widget extras-widget"><div class="section-bar"><h2>✧ <span>Votre espace</span></h2></div><p>Retrouvez vos exercices, vos favoris et votre ancien historique.</p><button id="go-extras" class="panel-link" type="button">Découvrir les autres activités <span aria-hidden="true">›</span></button></section>
+            </aside>
+          </div>
+        </section>
+
+        <section class="page" id="page-sleep" hidden aria-labelledby="sleep-title">
+          <div class="page-header"><span class="eyebrow">Un carnet simple et privé</span><h1 id="sleep-title">Mon sommeil</h1><p>Notez vos nuits si vous en avez envie, sans objectif imposé.</p></div>
+          <div class="journal-grid">
+            <form id="sleep-form" class="panel" autocomplete="off">
+              <h2>Ajouter une nuit</h2>
+              <div class="form-grid">
+                <label class="field-label">Date du réveil<input type="date" class="field" id="sleep-date" required></label>
+                <label class="field-label">Qualité ressentie<select class="field" id="sleep-quality"><option value="5">Très bonne</option><option value="4" selected>Bonne</option><option value="3">Correcte</option><option value="2">Difficile</option><option value="1">Très difficile</option></select></label>
+                <label class="field-label">Heure du coucher<input type="time" class="field" id="sleep-bed" value="22:30" required></label>
+                <label class="field-label">Heure du réveil<input type="time" class="field" id="sleep-wake" value="07:00" required></label>
+                <label class="field-label">Temps pour s'endormir<select class="field" id="sleep-latency"><option value="0">Très rapide</option><option value="10">Environ 10 min</option><option value="20" selected>Environ 20 min</option><option value="30">Environ 30 min</option><option value="45">Environ 45 min</option><option value="60">Une heure ou plus</option></select></label>
+                <label class="field-label">Réveils nocturnes<select class="field" id="sleep-wakings"><option value="0">Aucun</option><option value="1">1 fois</option><option value="2">2 fois</option><option value="3">3 fois ou plus</option></select></label>
+              </div>
+              <label class="field-label">Une note, si vous le souhaitez<textarea id="sleep-note" class="field" rows="3" maxlength="200" placeholder="Comment vous sentez-vous ce matin ?"></textarea></label>
+              <button class="btn primary" type="submit">Enregistrer cette nuit</button><p id="sleep-message" class="tiny" role="status">Une date existante sera mise à jour.</p>
+            </form>
+            <section class="panel" aria-labelledby="history-title"><h2 id="history-title">Mes dernières nuits</h2><div id="sleep-summary" class="sleep-summary"></div><div id="sleep-trend" class="sleep-trend" aria-label="Vos sept dernières nuits enregistrées"></div><div id="sleep-history" class="sleep-history"></div><div class="backup-actions"><button id="export-sleep" type="button" class="mini-btn">↓ Exporter mon carnet</button><label class="mini-btn import-label">↑ Importer un carnet<input type="file" id="import-sleep" accept=".json,application/json" hidden></label></div><p class="tiny" id="backup-message" role="status">Durées estimées et déclarées manuellement. Aucune mesure médicale. Données conservées dans ce navigateur.</p></section>
+          </div>
+        </section>
+        <section class="page" id="page-favorites" hidden aria-labelledby="fav-title">
+          <div class="page-header"><span class="eyebrow">Retrouvez vos atmosphères</span><h1 id="fav-title">Mes favoris</h1><p>Vos paysages et mélanges sonores préférés, disponibles à tout moment.</p></div>
+          <section class="panel narrow"><label class="field-label" for="preset-name">Nom de cette ambiance<input id="preset-name" class="field" maxlength="35" placeholder="Ex. Ma pluie du soir"></label><button type="button" id="save-preset" class="btn primary">♡ Enregistrer mon mélange</button><p id="preset-message" class="tiny" role="status"></p><div id="presets" class="presets"></div></section>
+        </section>
+        <section class="page" id="page-more" hidden aria-labelledby="more-title">
+          <div class="page-header"><span class="eyebrow">Un espace pour prendre soin de soi</span><h1 id="more-title">Réglages & activités</h1></div>
+          <div class="links-grid"><a class="feature-link" href="exercice.html"><span>✿</span><strong>Yoga & méditation</strong><small>Les exercices de votre application d'origine.</small></a><a class="feature-link" href="progress.html"><span>◷</span><strong>Mes anciennes séances</strong><small>Statistiques, progression et badges conservés.</small></a><a class="feature-link" href="ancienne-version.html"><span>↺</span><strong>Ancienne version</strong><small>Retrouver l'interface Relaxation d'origine.</small></a></div>
+          <section class="panel narrow"><h2>Préférences</h2><button type="button" id="motion-toggle" class="btn secondary" aria-pressed="false">Désactiver les animations</button><p class="tiny">Les animations très lentes sont facultatives. Le réglage est conservé sur cet appareil.</p><h2 class="settings-heading">À propos de zenus</h2><p>zenus accompagne la détente et la préparation au sommeil. L'application n'est pas un dispositif médical.</p><p>Vos nuits et vos favoris restent dans le navigateur. Vous pouvez exporter votre carnet, mais les données ne se synchronisent pas automatiquement entre appareils.</p><p>Les ambiances audio intégrées sont des créations numériques originales, pas des enregistrements de terrain. La lecture en arrière-plan et écran éteint doit être vérifiée sur votre téléphone.</p></section>
+        </section>
+      </main>
+      <footer class="footer-note"><span>zenus · créé par cjajlk</span><span>Le calme, à votre rythme.</span></footer>
+    </div>
+  </div>
+
+  <div class="player-bar" aria-label="Lecteur d'ambiance">
+    <div class="playing-art" id="playing-art" aria-hidden="true"></div>
+    <div class="playing-info"><strong id="playing-title">La forêt murmure</strong><small id="playing-detail">Détente · sons personnalisés</small></div>
+    <div class="player-actions"><button type="button" id="start" class="play-round" title="Commencer ou reprendre" aria-label="Démarrer l'ambiance">▶</button><button type="button" id="pause" class="player-control" title="Mettre en pause" disabled>Ⅱ</button><button type="button" id="stop" class="player-control" title="Terminer la séance" disabled>■</button></div>
+    <div class="player-timeline"><div class="player-time"><span id="elapsed-label">00:00</span><span id="clock">30:00</span></div><progress id="player-progress" max="100" value="0" aria-label="Progression de la séance"></progress><span id="status-label" class="player-status" role="status">Prêt à commencer</span></div>
+    <div class="player-volume"><label for="master-volume">Volume <output id="master-output">65 %</output></label><input type="range" id="master-volume" min="0" max="100" step="5" value="65" aria-label="Volume général"></div>
+    <button type="button" id="player-immerse" class="player-immersive" title="Plein écran" aria-label="Afficher le paysage en immersion">⛶</button>
+    <span id="status-indicator" class="status-indicator" aria-hidden="true"></span>
   </div>
 </body>
 </html>

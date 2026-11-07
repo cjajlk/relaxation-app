@@ -6,7 +6,7 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#10172d",
-  "theme_color": "#10172d",
+  "background_color": "#08142d",
+  "theme_color": "#08142d",
   "icons": [{"src":"zenus-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
 }
