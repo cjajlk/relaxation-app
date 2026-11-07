@@ -2,7 +2,7 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const $$ = selector => Array.from(document.querySelectorAll(selector));
-  const KEYS = { sleep: 'zenus.sleep.v1', presets: 'zenus.presets.v1' };
+  const KEYS = { sleep: 'zenus.sleep.v1', presets: 'zenus.presets.v1', settings: 'zenus.settings.v2' };
   const soundTypes = ['rain', 'waves', 'fire', 'wind', 'music'];
   const sceneTexts = {
     forest: ['La forêt murmure', 'Laissez la journée s’éloigner.', 'Paysage de forêt'],
@@ -46,6 +46,7 @@
   function setMode(mode) {
     if (!['relax', 'sleep'].includes(mode)) return;
     state.mode = mode;
+    document.body.classList.toggle('mode-sleep', mode === 'sleep');
     $('mode-relax').classList.toggle('active', mode === 'relax');
     $('mode-sleep').classList.toggle('active', mode === 'sleep');
     $('mode-relax').setAttribute('aria-pressed', String(mode === 'relax'));
@@ -61,6 +62,7 @@
   function setScene(scene) {
     if (!sceneTexts[scene]) return;
     state.scene = scene;
+    if (state.audio && 'mediaSession' in navigator && 'MediaMetadata' in window) navigator.mediaSession.metadata = new MediaMetadata({title:sceneTexts[scene][0],artist:'zenus',album:'Votre ambiance'});
     $('scene').className = 'scene scene-' + scene + (state.mode === 'sleep' ? ' sleep-scene' : '');
     $('scene').setAttribute('aria-label', sceneTexts[scene][2]);
     $('scene-title').textContent = sceneTexts[scene][0];
@@ -89,89 +91,81 @@
     document.querySelector('[data-output="' + type + '"]').textContent = amount + ' %';
     if (state.audio && state.audio.tracks[type]) {
       const node = state.audio.tracks[type];
-      const level = Math.pow(amount / 100, 1.25) * (type === 'music' ? 0.16 : 0.53);
+      const level = Math.pow(amount / 100, 1.1) * (type === 'music' ? 0.7 : 0.65);
       node.gain.setTargetAtTime(level, state.audio.context.currentTime, .12);
     }
   }
 
-  // Tous les sons sont produits localement à l'aide de Web Audio, sans média tiers.
-  function noiseBuffer(context, type) {
-    const count = context.sampleRate * 4;
-    const buffer = context.createBuffer(1, count, context.sampleRate);
-    const data = buffer.getChannelData(0);
-    let smooth = 0;
-    let ember = 0;
-    for (let i = 0; i < count; i++) {
-      const white = Math.random() * 2 - 1;
-      if (type === 'rain') data[i] = white * .33;
-      else if (type === 'waves') {
-        smooth = .993 * smooth + .007 * white;
-        const swell = .35 + .65 * (1 + Math.sin(i / context.sampleRate * 2 * Math.PI * .13)) / 2;
-        data[i] = smooth * 3.2 * swell + white * .055 * swell;
-      } else if (type === 'wind') {
-        smooth = .998 * smooth + .002 * white;
-        data[i] = smooth * 2.2 + white * .013;
-      } else if (type === 'fire') {
-        ember = .975 * ember + .025 * white;
-        data[i] = ember * .17 + (Math.random() < .003 ? (Math.random() - .5) * .8 : 0) + white * .014;
-      }
-    }
-    return buffer;
-  }
+  // Des fichiers Ogg originaux avec boucles longues remplacent les bruits de 4 s.
+  // Les éléments HTMLAudio permettent une lecture multimédia plus robuste en arrière-plan.
+  const audioFiles = {
+    rain: './sounds/pluie-douce.ogg',
+    waves: './sounds/vagues-calmes.ogg',
+    fire: './sounds/feu-doux.ogg',
+    wind: './sounds/brise.ogg',
+    music: './sounds/musique-ambient.ogg'
+  };
   function initAudio() {
     if (state.audio) return state.audio;
     const AudioClass = window.AudioContext || window.webkitAudioContext;
     if (!AudioClass) throw new Error('Audio Web non disponible');
     const context = new AudioClass();
     const master = context.createGain();
-    master.gain.value = .52;
+    master.gain.value = 0;
     master.connect(context.destination);
-    const tracks = {};
-    ['rain', 'waves', 'fire', 'wind'].forEach(type => {
-      const source = context.createBufferSource();
-      source.buffer = noiseBuffer(context, type);
-      source.loop = true;
-      const filter = context.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.value = type === 'rain' ? 5000 : type === 'fire' ? 3700 : type === 'wind' ? 520 : 1900;
+    const tracks = {}, elements = {};
+    soundTypes.forEach(type => {
+      const element = new Audio(audioFiles[type]);
+      element.loop = true;
+      element.preload = 'auto';
+      element.volume = 1;
+      elements[type] = element;
+      const source = context.createMediaElementSource(element);
       const gain = context.createGain();
       gain.gain.value = 0;
-      source.connect(filter); filter.connect(gain); gain.connect(master);
-      source.start();
+      source.connect(gain);
+      gain.connect(master);
       tracks[type] = gain;
     });
-    const music = context.createGain();
-    music.gain.value = 0;
-    music.connect(master);
-    // Nappe sonore originale, sans mélodie protégée ni fichier externe.
-    [196, 261.63, 329.63].forEach((frequency, index) => {
-      const oscillator = context.createOscillator();
-      oscillator.type = 'sine';
-      oscillator.frequency.value = frequency;
-      const channel = context.createGain();
-      channel.gain.value = [.22, .15, .09][index];
-      oscillator.connect(channel); channel.connect(music); oscillator.start();
-    });
-    tracks.music = music;
-    state.audio = { context, master, tracks };
+    state.audio = {context, master, tracks, elements, finishTimer: null};
     soundTypes.forEach(updateVolume);
+    if ('mediaSession' in navigator && 'MediaMetadata' in window) {
+      const ms = navigator.mediaSession;
+      ms.metadata = new MediaMetadata({title: sceneTexts[state.scene][0], artist: 'zenus', album: 'Détente & sommeil'});
+      try {
+        ms.setActionHandler('play', () => start());
+        ms.setActionHandler('pause', () => pause());
+        ms.setActionHandler('stop', () => stop(false));
+      } catch (_) { /* option non prise en charge */ }
+    }
     return state.audio;
+  }
+  function targetMaster() { return .75 * Number($('master-volume').value) / 100; }
+  function applyMasterVolume() {
+    $('master-output').textContent = $('master-volume').value + ' %';
+    applyFade();
   }
   function applyFade() {
     if (!state.audio) return;
     const total = duration();
     const remaining = total ? Math.max(0, total - elapsed()) : Infinity;
     const fade = $('fade').checked && total > 0 ? Math.min(1, remaining / 90) : 1;
-    state.audio.master.gain.setTargetAtTime(.52 * fade, state.audio.context.currentTime, .18);
+    state.audio.master.gain.setTargetAtTime(targetMaster() * fade, state.audio.context.currentTime, .25);
   }
   async function start() {
     if (state.status === 'playing') return;
+    let audio;
     try {
-      const audio = initAudio();
+      audio = initAudio();
+      if (audio.finishTimer) { clearTimeout(audio.finishTimer); audio.finishTimer = null; }
+      // Lancer les médias directement depuis le clic utilisateur pour respecter les navigateurs mobiles.
+      const attempts = soundTypes.map(type => audio.elements[type].play());
       await audio.context.resume();
+      await Promise.all(attempts);
     } catch (e) {
-      setStatus('Le son est indisponible sur ce navigateur.');
+      setStatus('Impossible de lire une piste sonore. Vérifiez les fichiers audio.');
       console.error(e);
+      if (audio) soundTypes.forEach(type => audio.elements[type].pause());
       return;
     }
     state.runningSince = Date.now();
@@ -190,7 +184,16 @@
     if (state.status !== 'playing') return;
     state.elapsed = elapsed();
     state.status = 'paused';
-    if (state.audio) state.audio.context.suspend().catch(() => {});
+    if (state.audio) {
+      const audio = state.audio;
+      audio.master.gain.setTargetAtTime(0, audio.context.currentTime, .13);
+      audio.finishTimer = setTimeout(() => {
+        if (state.status === 'paused') {
+          soundTypes.forEach(type => audio.elements[type].pause());
+          audio.context.suspend().catch(() => {});
+        }
+      }, 450);
+    }
     $('start').disabled = false;
     $('start').textContent = '▶ Reprendre';
     $('pause').disabled = true;
@@ -227,8 +230,15 @@
     state.status = 'idle';
     if (state.tick) { clearInterval(state.tick); state.tick = null; }
     if (state.audio) {
-      state.audio.master.gain.value = 0;
-      state.audio.context.suspend().catch(() => {});
+      const audio = state.audio;
+      audio.master.gain.setTargetAtTime(0, audio.context.currentTime, .12);
+      if (audio.finishTimer) clearTimeout(audio.finishTimer);
+      audio.finishTimer = setTimeout(() => {
+        if (state.status === 'idle') {
+          soundTypes.forEach(type => { audio.elements[type].pause(); audio.elements[type].currentTime = 0; });
+          audio.context.suspend().catch(() => {});
+        }
+      }, 550);
     }
     $('start').disabled = false;
     $('start').textContent = '▶ Commencer';
@@ -331,6 +341,18 @@
       const small = document.createElement('small'); small.textContent = pair[1];
       stat.append(strong, small); summary.append(stat);
     });
+    const chart = $('sleep-trend');
+    chart.replaceChildren();
+    recent.slice().reverse().forEach(night => {
+      const el = document.createElement('div'); el.className = 'trend-night';
+      const bar = document.createElement('div'); bar.className = 'trend-bar';
+      bar.style.height = Math.max(5, Math.min(105, Math.round(night.minutesInBed / 600 * 105))) + 'px';
+      bar.title = safeDateLabel(night.date) + ' : ' + displayMinutes(night.minutesInBed) + ' passées au lit';
+      const date = document.createElement('small'); date.textContent = night.date.slice(8);
+      const text = document.createElement('span'); text.textContent = Math.round(night.minutesInBed/60*10)/10 + ' h';
+      el.append(bar,date,text); chart.append(el);
+    });
+    chart.hidden = !recent.length;
     if (!nights.length) { const p = document.createElement('p'); p.className = 'hint'; p.textContent = 'Aucune nuit enregistrée pour le moment.'; history.append(p); return; }
     const descriptions = ['', 'Très difficile', 'Difficile', 'Correcte', 'Bonne', 'Très bonne'];
     nights.slice(0, 14).forEach(night => {
@@ -384,11 +406,78 @@
     });
   }
 
+  // Ambiances prêtes à écouter — réglages modifiables ensuite.
+  const quickPresets = {
+    rain: { scene: 'rain', volumes: { rain: 70, waves: 0, fire: 0, wind: 10, music: 20 } },
+    ocean: { scene: 'ocean', volumes: { rain: 0, waves: 70, fire: 0, wind: 20, music: 25 } },
+    fire: { scene: 'fire', volumes: { rain: 25, waves: 0, fire: 65, wind: 0, music: 30 } },
+    forest: { scene: 'forest', volumes: { rain: 20, waves: 0, fire: 0, wind: 55, music: 25 } }
+  };
+  $$('.quick-preset').forEach(button => button.addEventListener('click', () => {
+    const preset = quickPresets[button.dataset.quick];
+    if (!preset) return;
+    setScene(preset.scene);
+    setVolumes(preset.volumes);
+    $$('.quick-preset').forEach(b => b.classList.toggle('selected', b === button));
+  }));
+  $('master-volume').addEventListener('input', applyMasterVolume);
+  $('immersion').addEventListener('click', () => {
+    const active = document.body.classList.toggle('is-immersive');
+    $('immersion').setAttribute('aria-pressed', String(active));
+    $('immersion').innerHTML = active ? '✕ <span>Quitter</span>' : '⛶ <span>Immersion</span>';
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && document.body.classList.contains('is-immersive')) $('immersion').click();
+  });
+  $('motion-toggle').addEventListener('click', () => {
+    const off = document.body.classList.toggle('motion-off');
+    $('motion-toggle').setAttribute('aria-pressed', String(off));
+    $('motion-toggle').textContent = off ? 'Réactiver les animations' : 'Désactiver les animations';
+    saveJSON(KEYS.settings, {motionOff: off, masterVolume: Number($('master-volume').value)});
+  });
+  function validateImportedNights(raw) {
+    if (!Array.isArray(raw) || raw.length > 10000) throw new Error('Format de carnet non reconnu');
+    return raw.filter(n => n && /^\d{4}-\d{2}-\d{2}$/.test(n.date) && /^\d{2}:\d{2}$/.test(n.bed) && /^\d{2}:\d{2}$/.test(n.wake) &&
+      Number.isFinite(n.minutesInBed) && n.minutesInBed > 0 && n.minutesInBed <= 1080 && Number.isInteger(n.quality) && n.quality >= 1 && n.quality <= 5)
+      .map(n => ({ date: n.date, bed: n.bed, wake: n.wake, minutesInBed: n.minutesInBed,
+        latency: Math.min(120, Math.max(0, Number(n.latency)||0)),
+        wakings: Math.min(20, Math.max(0, Number(n.wakings)||0)),
+        quality: n.quality, note: String(n.note || '').slice(0,200) }));
+  }
+  $('export-sleep').addEventListener('click', () => {
+    const backup = {application: 'zenus', version: 1, exportedAt: new Date().toISOString(), nights: readSleep()};
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'zenus-sommeil-'+localDate()+'.json'; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1200);
+    $('backup-message').textContent = 'Copie de votre carnet préparée.';
+  });
+  $('import-sleep').addEventListener('change', async event => {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+      if (file.size > 5e6) throw new Error('Fichier trop volumineux');
+      const data = JSON.parse(await file.text());
+      if (data.application !== 'zenus') throw new Error('Ce fichier ne vient pas de zenus');
+      const nights = validateImportedNights(data.nights);
+      const existing = readSleep();
+      const merged = new Map(nights.map(n => [n.date, n]));
+      existing.forEach(n => merged.set(n.date, n)); // les nuits déjà présentes ont la priorité
+      if (!saveJSON(KEYS.sleep, Array.from(merged.values()))) throw new Error('Sauvegarde locale impossible');
+      renderSleep();
+      $('backup-message').textContent = nights.length + ' nuit(s) trouvée(s) : carnet importé sans écraser vos nuits actuelles.';
+    } catch (e) { $('backup-message').textContent = 'Import impossible : '+e.message; }
+    event.target.value = '';
+  });
+
   $$('.nav-btn').forEach(button => button.addEventListener('click', () => showPage(button.dataset.page)));
   $('mode-relax').addEventListener('click', () => setMode('relax'));
   $('mode-sleep').addEventListener('click', () => setMode('sleep'));
   $$('.scene-btn').forEach(button => button.addEventListener('click', () => setScene(button.dataset.scene)));
-  $$('.mixer input[data-sound]').forEach(input => input.addEventListener('input', () => updateVolume(input.dataset.sound)));
+  $$('.mixer input[data-sound]').forEach(input => input.addEventListener('input', () => {
+    updateVolume(input.dataset.sound);
+    $$('.quick-preset').forEach(button => button.classList.remove('selected'));
+  }));
   $('duration').addEventListener('change', updateClock);
   $('fade').addEventListener('change', applyFade);
   $('start').addEventListener('click', start);
@@ -400,6 +489,15 @@
   $('sleep-form').addEventListener('submit', saveNight);
   $('save-preset').addEventListener('click', savePreset);
   $('sleep-date').value = localDate();
+  const restored = readJSON(KEYS.settings, {});
+  if (restored && restored.motionOff) $('motion-toggle').click();
+  if (restored && Number.isFinite(restored.masterVolume)) {
+    $('master-volume').value = Math.max(0,Math.min(100, restored.masterVolume));
+  }
+  applyMasterVolume();
+  $('master-volume').addEventListener('change', () => saveJSON(KEYS.settings, {
+    motionOff: document.body.classList.contains('motion-off'), masterVolume: Number($('master-volume').value)
+  }));
   setInterval(breathing, 200);
   soundTypes.forEach(updateVolume);
   renderSleep(); renderPresets(); updateClock();

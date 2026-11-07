@@ -33,7 +33,8 @@
         <div class="main-grid">
           <section class="visual-col" aria-label="Décor relaxant">
             <div class="scene scene-forest" id="scene" role="img" aria-label="Paysage de forêt">
-              <div class="scene-overlay"></div><div class="scene-orb" aria-hidden="true"></div>
+              <div class="scene-overlay"></div><div class="scene-orb" aria-hidden="true"></div><div class="scene-particles" aria-hidden="true"></div><div class="scene-rainfall" aria-hidden="true"></div>
+              <button id="immersion" class="scene-immerse" type="button" aria-pressed="false" title="Afficher l'ambiance en grand">⛶ <span>Immersion</span></button>
               <div class="scene-text"><span id="scene-badge" class="scene-badge">Détente</span><h2 id="scene-title">La forêt murmure</h2><p id="scene-caption">Laissez la journée s'éloigner.</p></div>
             </div>
             <div class="scene-options" role="group" aria-label="Choix du paysage">
@@ -42,10 +43,16 @@
               <button type="button" class="scene-btn" data-scene="rain" aria-pressed="false">Pluie</button>
               <button type="button" class="scene-btn" data-scene="fire" aria-pressed="false">Cheminée</button>
             </div>
-            <p class="tiny">Les quatre paysages de l'ancienne application sont conservés.</p>
+            <p class="tiny">Des paysages 2D sublimés, avec des mouvements très doux. <button type="button" id="motion-toggle" class="inline-link" aria-pressed="false">Désactiver les animations</button></p>
           </section>
           <section class="panel player" aria-label="Réglages de la séance">
-            <span class="eyebrow">Personnalisez votre instant</span><h2>Votre ambiance sonore</h2><p class="hint">Mixez plusieurs sons et une musique douce avec des volumes indépendants.</p>
+            <span class="eyebrow">Personnalisez votre instant</span><h2>Votre ambiance sonore</h2><p class="hint">Choisissez une atmosphère prête à écouter, ou créez votre propre mélange.</p>
+            <div class="quick-presets" role="group" aria-label="Ambiances proposées">
+              <button type="button" class="quick-preset" data-quick="rain">☂ Pluie du soir</button>
+              <button type="button" class="quick-preset" data-quick="ocean">≈ Rivage calme</button>
+              <button type="button" class="quick-preset" data-quick="fire">♨ Cocooning</button>
+              <button type="button" class="quick-preset" data-quick="forest">✿ Sous-bois</button>
+            </div>
             <div class="mixer">
               <label class="mixer-row"><span>☂ Pluie</span><input type="range" min="0" max="100" step="5" data-sound="rain" value="45" aria-label="Volume de la pluie"><output data-output="rain">45 %</output></label>
               <label class="mixer-row"><span>≈ Vagues</span><input type="range" min="0" max="100" step="5" data-sound="waves" value="0" aria-label="Volume des vagues"><output data-output="waves">0 %</output></label>
@@ -53,8 +60,9 @@
               <label class="mixer-row"><span>♧ Brise légère</span><input type="range" min="0" max="100" step="5" data-sound="wind" value="20" aria-label="Volume de la brise"><output data-output="wind">20 %</output></label>
               <label class="mixer-row"><span>♫ Musique douce</span><input type="range" min="0" max="100" step="5" data-sound="music" value="20" aria-label="Volume de la musique"><output data-output="music">20 %</output></label>
             </div>
-            <p class="tiny">Sons et nappe musicale originale synthétisés localement. Aucun téléchargement audio.</p>
-            <label class="field-label" for="duration">Minuterie</label><select id="duration" class="field"><option value="0">Sans limite</option><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select>
+            <p class="tiny">Nouvelles ambiances audio originales, préparées en boucles longues et intégrées pour l'écoute hors ligne.</p>
+            <div class="volume-master"><label for="master-volume">Volume général</label><input type="range" id="master-volume" min="0" max="100" value="65" step="5" aria-label="Volume général"><output id="master-output">65 %</output></div>
+            <label class="field-label" for="duration">Minuterie</label><select id="duration" class="field"><option value="0">Sans limite</option><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option><option value="120">2 heures</option></select>
             <label class="checkline"><input type="checkbox" id="fade" checked> <span>Fondu sonore en fin de séance</span></label>
             <div class="status" role="status"><span class="status-indicator" id="status-indicator"></span><span id="status-label">Prêt à commencer</span><strong id="clock">30:00</strong></div>
             <div class="actions"><button type="button" id="start" class="btn primary">▶ Commencer</button><button type="button" id="pause" class="btn secondary" disabled>Pause</button><button type="button" id="stop" class="btn ghost" disabled>Terminer</button></div>
@@ -83,7 +91,7 @@
             <label class="field-label">Une note, si vous le souhaitez<textarea id="sleep-note" class="field" rows="2" maxlength="200" placeholder="Comment vous sentez-vous ce matin ?"></textarea></label>
             <button class="btn primary" type="submit">Enregistrer la nuit</button><p id="sleep-message" class="tiny" role="status">Une date existante sera mise à jour.</p>
           </form>
-          <section class="panel" aria-labelledby="history-title"><h2 id="history-title">Mes dernières nuits</h2><div id="sleep-summary" class="sleep-summary"></div><div id="sleep-history" class="sleep-history"></div><p class="tiny">Durées estimées, déclarées manuellement. Aucune mesure médicale. Données stockées dans ce navigateur.</p></section>
+          <section class="panel" aria-labelledby="history-title"><h2 id="history-title">Mes dernières nuits</h2><div id="sleep-summary" class="sleep-summary"></div><div id="sleep-trend" class="sleep-trend" aria-label="Vos sept dernières nuits enregistrées"></div><div id="sleep-history" class="sleep-history"></div><div class="backup-actions"><button id="export-sleep" type="button" class="mini-btn">↓ Exporter mon carnet</button><label class="mini-btn import-label">↑ Importer un carnet<input type="file" id="import-sleep" accept=".json,application/json" hidden></label></div><p class="tiny" id="backup-message" role="status">Durées estimées, déclarées manuellement. Aucune mesure médicale. Données stockées dans ce navigateur.</p></section>
         </div>
       </section>
       <section class="page" id="page-favorites" aria-labelledby="fav-title" hidden>
@@ -93,7 +101,7 @@
       <section class="page" id="page-more" aria-labelledby="more-title" hidden>
         <div class="heading"><span class="eyebrow">Prendre soin de soi, simplement</span><h1 id="more-title">Découvrir</h1></div>
         <div class="links-grid"><a class="feature-link" href="exercice.html"><span>✿</span><strong>Yoga & méditation</strong><small>Les exercices de votre application d'origine</small></a><a class="feature-link" href="progress.html"><span>◷</span><strong>Mes anciennes séances</strong><small>Statistiques, progression et badges conservés</small></a><a class="feature-link" href="ancienne-version.html"><span>↺</span><strong>Ancienne version</strong><small>Retrouver l'application Relaxation d'origine</small></a></div>
-        <section class="panel narrow"><h2>À propos de zenus</h2><p>zenus accompagne la détente et la préparation au sommeil. Il ne remplace pas un avis médical. Toutes les fonctions de suivi sont facultatives.</p><p>Vos nuits et vos favoris restent enregistrés uniquement dans ce navigateur. Si vous changez d'appareil ou effacez les données du navigateur, ils ne seront pas synchronisés.</p><p>Sur certains téléphones, la lecture sonore peut s'interrompre lorsque l'écran s'éteint : le fonctionnement doit être vérifié sur l'appareil réel.</p></section>
+        <section class="panel narrow"><h2>À propos de zenus</h2><p>zenus accompagne la détente et la préparation au sommeil. Il ne remplace pas un avis médical. Toutes les fonctions de suivi sont facultatives.</p><p>Vos nuits et vos favoris restent enregistrés uniquement dans ce navigateur. Si vous changez d'appareil ou effacez les données du navigateur, ils ne seront pas synchronisés.</p><p>Les sons sont des créations numériques originales intégrées à cette application. Ils ne prétendent pas être des enregistrements de terrain.</p><p>Sur certains téléphones, la lecture sonore peut s'interrompre lorsque l'écran s'éteint : le fonctionnement doit être vérifié sur l'appareil réel.</p></section>
       </section>
     </main>
     <footer class="footer"><span>zenus · créé par cjajlk</span><span>Le calme, à votre rythme.</span></footer>

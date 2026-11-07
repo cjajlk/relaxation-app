@@ -1,53 +1,45 @@
-# zenus — Première évolution de Relaxation App
+# zenus — Livraison complète V0.2 premium
 
-Version préparée le 7 novembre 2026 pour `cjajlk/relaxation-app`.
+**7 novembre 2026.** Projet d'origine : dossier `relaxation-app` fourni par CJ, y compris historique `.git`.
 
-## Contenu de la mise à jour
+## Améliorations intégrées
 
-- Nouveau nom **zenus** (avec un **z minuscule**) dans le titre, l'interface et le manifeste.
-- Nouvelle interface mobile et PC, thème bleu nuit/violet, compatible avec les **quatre paysages existants** (`assets/backgrounds`).
-- Deux modes : **Détente** et **Sommeil**.
-- **Mélangeur sonore** Web Audio : pluie, vagues, feu de cheminée, brise et nappe musicale originale, avec volumes indépendants.
-- **Minuterie** (libre / 15 / 30 / 45 / 60 min) et baisse graduelle du volume durant les 90 dernières secondes.
-- Lecture, pause, reprise, arrêt d'une séance.
-- **Respiration guidée**, dont 4-7-8 dans le bon ordre : inspirer 4 s, retenir 7 s, expirer 8 s ; voix de synthèse facultative.
-- **Favoris** pour les mélanges sonores et les décors, sauvegardés localement.
-- **Carnet de sommeil** manuel : heure du coucher, réveil, latence estimée, réveils, qualité, notes, historique et moyennes.
-- Lien vers les anciens exercices de yoga et méditation, et vers les anciennes statistiques.
-- Ancienne interface mise à l'abri dans `ancienne-version.html`.
-- Service worker pour la mise en cache hors ligne des ressources du dépôt (à vérifier une fois publié).
+1. Nom officiel **zenus**, toujours avec un z minuscule.
+2. Décors 2D de votre projet initial rehaussés (8 versions WebP optimisées, jour/nuit) : forêt, plage, pluie à la fenêtre, cheminée. Les 4 PNG originaux ne sont pas supprimés.
+3. Décors plus hauts, scène principale immersive plein écran, sélecteur illustré de paysages, mouvements lents, effets discrets (pluie / lumière / lucioles) et bouton pour désactiver les animations.
+4. Pistes sonores originales en fichiers Ogg Vorbis : 60 secondes par ambiance, 5 canaux indépendants (pluie, vagues, feu, brise, musique), avec bouclage préparé, au lieu de bruits de 4 secondes synthétisés en direct.
+5. Ambiances préréglées : Pluie du soir, Rivage calme, Cocooning, Sous-bois ; volume indépendant par piste et volume général.
+6. Minuterie libre / 5 / 10 / 15 / 30 / 45 / 60 / 90 / 120 min, fondu en fin de séance, pause / reprise / arrêt.
+7. Conservation des modes Détente et Sommeil, respiration guidée 4-7-8 correctement ordonnée, voix facultative.
+8. Carnet manuel du sommeil : courbe sur 7 nuits saisies, export JSON et réimport non destructif des données.
+9. Service worker actualisé pour mettre en cache les fichiers Ogg et WebP, avec prise en charge des requêtes audio « Range » en mode hors ligne.
+10. Préservation de l'ancienne application, des exercices, des statistiques héritées et des données locales.
 
-## Déploiement dans GitHub
+## Fichiers conservés
 
-**Important : le dépôt en ligne n'a PAS été modifié automatiquement.** Les tentatives d'écriture ont été refusées (HTTP 403, « Resource not accessible by integration »). Ce ZIP est une mise à jour prête à installer, pas un déploiement déjà réalisé.
+- Le dossier **`.git/`** complet avec `origin` existant et son historique.
+- `assets/backgrounds/` : images PNG d'origine intactes.
+- `ancienne-version.html`, `exercice.html`, `progress.html`, et les anciennes ressources : aucune suppression.
+- Le dossier `sounds/` comprend les nouvelles pistes originales, directement intégrées au projet.
 
-1. Faire une sauvegarde du dépôt `cjajlk/relaxation-app`, branche `main`.
-2. Décompresser le ZIP **sur l'ordinateur**.
-3. Copier les fichiers de ce ZIP **à la racine du dépôt**, en remplaçant uniquement les fichiers portant les mêmes noms (`index.html`, `exercice.html`, `progress.html`). Ne pas envoyer le ZIP tel quel à GitHub.
-4. **Conserver sans modifier** `assets/`, `sounds/`, `script.js`, `styles.css`, `exercice.js`, `progress.js` : ils sont nécessaires à la nouvelle interface ou à la version historique.
-5. Committer et pousser les changements sur `main` (ou créer une pull request après vérification).
-6. Vérifier `https://cjajlk.github.io/relaxation-app/` et les fonctions sur un vrai téléphone Android.
+## Tests locaux effectués
 
-## Données utilisateur
+- Analyse de syntaxe JavaScript (`node --check`) : `zenus.js`, `service-worker.js`.
+- `ffprobe` : les 5 sons Ogg ont une durée de 60 s et sont reconnus par le décodeur.
+- Chromium headless (interface + fichiers audio injectés localement) sur **320, 390, 1280 px** : navigation, scènes, bascule jour/nuit, contrôle des volumes, presets, ambiance sonore, lecture/pause/reprise/arrêt, respiration, immersion, carnet et export JSON, favori : sans erreur JavaScript ni débordement horizontal.
+- Tests effectués en simulation Chromium, **pas sur un véritable appareil Android ni sur GitHub Pages**. Évaluation musicale subjective à réaliser par l'utilisateur.
 
-- Les anciennes statistiques utilisent les clés locales `totalTimeSeconds`, `sessionsCount`, `sessionDates`, `badges` et `badgeDates` et restent conservées.
-- Les nouvelles séances de plus de 30 secondes enrichissent ces statistiques, sans effacer les anciennes valeurs.
-- Les nouveaux favoris utilisent `zenus.presets.v1`.
-- Les nuits saisies utilisent `zenus.sleep.v1`.
-- Tout reste dans le stockage local du **même navigateur et de la même origine** (`cjajlk.github.io/relaxation-app/`). Il n'existe pas de synchronisation entre appareils.
+## Publication
 
-## Limites et vérifications à faire sur téléphone
+**Aucun commit poussé en ligne depuis ce travail.** La connexion GitHub accessible à l'assistant précédemment consultée refusait les écritures (403). Les fichiers et le commit sont disponibles localement dans le dossier ZIP.
 
-- Sons générés, pas des enregistrements naturalistes. Ils pourront être remplacés par des ambiances de qualité supérieure lors d'une version ultérieure.
-- Le comportement de lecture avec écran éteint varie suivant Android et le navigateur et n'est pas garanti.
-- Aucun connecteur Santé Connect : la saisie du sommeil est manuelle en V0.1.
-- Les anciennes pages « Mes séances » chargent Chart.js par CDN : leur graphique peut demander Internet. Le service worker précharge uniquement les fichiers hébergés dans le dépôt.
-- Les décors de l'ancien dépôt doivent être présents au bon chemin pour être visibles ; ils ne sont pas inclus dans ce pack.
-- Le suivi du sommeil est déclaratif et ne constitue pas une mesure médicale.
+Sur Windows : décompressez ce ZIP, ouvrez **le dossier `relaxation-app`** dans VS Code, essayez avec Live Server, puis `git push origin main` depuis le terminal VS Code (ou la fonction Synchroniser les modifications). Vérifiez ensuite l'adresse `https://cjajlk.github.io/relaxation-app/`.
 
-## Contrôles réalisés hors publication
+Ne forcez pas un push si le dépôt distant a changé. Ne remplacez pas le dossier `.git` d'un autre clone par copie partielle.
 
-- Analyse syntaxique `node --check` sur `zenus.js` et `service-worker.js`.
-- Tests d'interaction Chromium (Playwright) aux résolutions **320, 390, 1280 px** : navigation, choix de mode, changements de décor, son, pause/reprise, respiration, favoris, saisie/suppression de nuit et écriture de statistiques héritées.
-- Aucun débordement horizontal observé et aucune erreur JavaScript lors de ces scénarios.
-- Ces tests ont été effectués dans un document local injecté : ils **ne constituent pas** une vérification du site GitHub Pages déployé ni une validation audio subjective.
+## Limites actuelles
+
+- La lecture de médias écran éteint et l'installation hors ligne nécessitent une validation en conditions réelles sur smartphone.
+- Les sons sont des compositions/ambiances **synthétiques originales**, pas des enregistrements de terrain ; ils demandent une écoute subjective et pourront être remplacés par de futurs enregistrements licenciés.
+- Le suivi reste manuel et local, sans Santé Connect ni synchronisation multi-appareils.
+- Pour bénéficier du hors ligne après installation sur GitHub Pages, une première connexion et un chargement complet des ressources sont nécessaires.
